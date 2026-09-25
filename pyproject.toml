@@ -1,0 +1,5 @@
+[project]
+name = "heritage-mentor"
+version = "0.1.0"
+description = "校地非遗导师履约簿领域契约"
+requires-python = ">=3.11"

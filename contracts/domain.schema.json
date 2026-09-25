@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "校地非遗导师履约簿领域事件",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "aggregate_type",
+    "aggregate_id",
+    "occurred_at",
+    "version",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "AGREEMENT_VERSIONED",
+        "MENTOR_AUTHORIZED",
+        "LESSON_SCHEDULED",
+        "DELIVERY_CONFIRMED",
+        "OBLIGATION_RAISED"
+      ]
+    },
+    "aggregate_type": {
+      "type": "string",
+      "enum": [
+        "partnership_agreement",
+        "mentor_grant",
+        "lesson_delivery",
+        "student_artifact"
+      ]
+    },
+    "aggregate_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "payload_required_by_event": {
+    "MENTOR_AUTHORIZED": [
+      "scope",
+      "expires_at"
+    ],
+    "LESSON_SCHEDULED": [
+      "class_ref",
+      "resource_window"
+    ],
+    "DELIVERY_CONFIRMED": [
+      "contribution_snapshot",
+      "evidence_hash"
+    ]
+  },
+  "additionalProperties": false
+}
