@@ -16,13 +16,41 @@
       "type": "string",
       "minLength": 1
     },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
     "event_type": {
       "type": "string",
       "enum": [
         "AGREEMENT_VERSIONED",
+        "MENTOR_REGISTERED",
         "MENTOR_AUTHORIZED",
+        "GRANT_NARROWED",
+        "COURSE_PLANNED",
+        "PREPARATION_CONFIRMED",
         "LESSON_SCHEDULED",
+        "LESSON_RESCHEDULED",
+        "LESSON_CANCELLED",
         "DELIVERY_CONFIRMED",
+        "ATTENDANCE_RECORDED",
+        "CONSENT_GRANTED",
+        "CONSENT_WITHDRAWN",
+        "ARTIFACT_REGISTERED",
+        "ARTIFACT_PUBLICATION_DECIDED",
+        "ARTIFACT_FEE_DECIDED",
+        "ATTRIBUTION_SUPPLEMENTED",
+        "ARTIFACT_TAKEDOWN_REQUESTED",
+        "ARTIFACT_TAKEDOWN_COMPLETED",
+        "FEE_OBLIGATION_RAISED",
+        "PAYOUT_SETTLED",
+        "QUALITY_FEEDBACK_GIVEN",
+        "RECTIFICATION_OPENED",
+        "RECTIFICATION_RESOLVED",
+        "HANDOFF_REQUIRED",
+        "HANDOFF_COMPLETED",
+        "SETTLEMENT_HOLD_PLACED",
+        "SETTLEMENT_HOLD_CLEARED",
         "OBLIGATION_RAISED"
       ]
     },
@@ -30,9 +58,15 @@
       "type": "string",
       "enum": [
         "partnership_agreement",
+        "mentor_profile",
         "mentor_grant",
-        "lesson_delivery",
-        "student_artifact"
+        "course",
+        "lesson_session",
+        "student_consent",
+        "student_artifact",
+        "payout",
+        "handoff",
+        "settlement_hold"
       ]
     },
     "aggregate_id": {
@@ -52,17 +86,174 @@
     }
   },
   "payload_required_by_event": {
+    "AGREEMENT_VERSIONED": [
+      "agreement_ref",
+      "terms_version",
+      "effective_from",
+      "status"
+    ],
+    "MENTOR_REGISTERED": [
+      "mentor_id",
+      "qualification"
+    ],
     "MENTOR_AUTHORIZED": [
+      "grant_id",
+      "mentor_id",
+      "agreement_ref",
       "scope",
+      "content_refs",
+      "grade_prerequisites",
+      "issued_at",
       "expires_at"
     ],
+    "GRANT_NARROWED": [
+      "grant_id",
+      "revised_scope",
+      "removed_content_refs",
+      "effective_from",
+      "follow_up_obligations"
+    ],
+    "COURSE_PLANNED": [
+      "course_id",
+      "mentor_id",
+      "agreement_ref",
+      "grant_id",
+      "grade_level",
+      "collaborating_teacher_ids",
+      "lesson_count",
+      "preparation_due_at"
+    ],
+    "PREPARATION_CONFIRMED": [
+      "course_id",
+      "confirmed_at",
+      "deadline_anchor_event"
+    ],
     "LESSON_SCHEDULED": [
+      "lesson_id",
+      "course_id",
+      "mentor_id",
       "class_ref",
+      "starts_at",
+      "ends_at",
       "resource_window"
     ],
+    "LESSON_RESCHEDULED": [
+      "lesson_id",
+      "starts_at",
+      "ends_at",
+      "resource_window",
+      "reason"
+    ],
+    "LESSON_CANCELLED": [
+      "lesson_id",
+      "reason"
+    ],
     "DELIVERY_CONFIRMED": [
+      "lesson_id",
       "contribution_snapshot",
-      "evidence_hash"
+      "content_refs_used",
+      "evidence_hash",
+      "delivered_at"
+    ],
+    "ATTENDANCE_RECORDED": [
+      "lesson_id",
+      "receipts"
+    ],
+    "CONSENT_GRANTED": [
+      "consent_id",
+      "student_ref",
+      "guardian_ref",
+      "scope",
+      "granted_at",
+      "valid_until"
+    ],
+    "CONSENT_WITHDRAWN": [
+      "consent_id",
+      "withdrawn_at"
+    ],
+    "ARTIFACT_REGISTERED": [
+      "artifact_id",
+      "lesson_id",
+      "student_refs",
+      "source_content_refs"
+    ],
+    "ARTIFACT_PUBLICATION_DECIDED": [
+      "artifact_id",
+      "decision",
+      "approver_role",
+      "decided_at"
+    ],
+    "ARTIFACT_FEE_DECIDED": [
+      "artifact_id",
+      "decision",
+      "approver_role",
+      "decided_at"
+    ],
+    "ATTRIBUTION_SUPPLEMENTED": [
+      "artifact_id",
+      "attributions"
+    ],
+    "ARTIFACT_TAKEDOWN_REQUESTED": [
+      "artifact_id",
+      "reason",
+      "requested_at"
+    ],
+    "ARTIFACT_TAKEDOWN_COMPLETED": [
+      "artifact_id",
+      "completed_at"
+    ],
+    "FEE_OBLIGATION_RAISED": [
+      "obligation_id",
+      "mentor_id",
+      "kind",
+      "amount",
+      "source_ref",
+      "due_at",
+      "deadline_anchor_event"
+    ],
+    "PAYOUT_SETTLED": [
+      "obligation_id",
+      "settled_at",
+      "amount"
+    ],
+    "QUALITY_FEEDBACK_GIVEN": [
+      "lesson_id",
+      "verdict",
+      "given_at"
+    ],
+    "RECTIFICATION_OPENED": [
+      "rectification_id",
+      "lesson_id",
+      "opened_at",
+      "due_at",
+      "deadline_anchor_event"
+    ],
+    "RECTIFICATION_RESOLVED": [
+      "rectification_id",
+      "resolved_at"
+    ],
+    "HANDOFF_REQUIRED": [
+      "handoff_id",
+      "mentor_id",
+      "items",
+      "due_at",
+      "deadline_anchor_event"
+    ],
+    "HANDOFF_COMPLETED": [
+      "handoff_id",
+      "completed_at",
+      "items"
+    ],
+    "SETTLEMENT_HOLD_PLACED": [
+      "ref",
+      "ref_kind",
+      "reason",
+      "detected_at"
+    ],
+    "SETTLEMENT_HOLD_CLEARED": [
+      "hold_id",
+      "resolution",
+      "cleared_at"
     ]
   },
   "additionalProperties": false

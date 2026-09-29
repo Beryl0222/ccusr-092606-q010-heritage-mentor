@@ -36,6 +36,44 @@ class ContractTests(unittest.TestCase):
         issues = validate_event(dict(self.sample, event_type="UNKNOWN"), self.schema)
         self.assertIn(("event_type", "unsupported_value"), [(x.field, x.code) for x in issues])
 
+    def test_payload_deadline_requires_timezone(self) -> None:
+        event = dict(
+            self.sample,
+            event_type="MENTOR_AUTHORIZED",
+            aggregate_type="mentor_grant",
+            payload={
+                "grant_id": "g", "mentor_id": "m", "agreement_ref": "a",
+                "scope": ["teach"], "content_refs": ["c"], "grade_prerequisites": ["g3"],
+                "issued_at": "2026-09-02T00:00:00+08:00",
+                "expires_at": "2027-01-31T00:00:00",
+            },
+        )
+        self.assertIn(
+            ("payload.expires_at", "timezone_required"),
+            [(x.field, x.code) for x in validate_event(event, self.schema)],
+        )
+
+    def test_event_must_belong_to_declared_aggregate(self) -> None:
+        event = dict(
+            self.sample,
+            event_type="LESSON_SCHEDULED",
+            aggregate_type="mentor_grant",
+            payload={},
+        )
+        self.assertIn(
+            ("aggregate_type", "aggregate_mismatch"),
+            [(x.field, x.code) for x in validate_event(event, self.schema)],
+        )
+
+    def test_every_sample_journal_event_is_valid(self) -> None:
+        schema = self.schema
+        invalid = []
+        for line_no, line in enumerate((ROOT / "data/journal.sample.jsonl").read_text(encoding="utf-8").splitlines(), 1):
+            issues = validate_event(json.loads(line), schema)
+            if issues:
+                invalid.append((line_no, [(i.field, i.code) for i in issues]))
+        self.assertEqual([], invalid)
+
 
 if __name__ == "__main__":
     unittest.main()

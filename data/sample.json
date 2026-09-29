@@ -1,9 +1,14 @@
 {
-  "event_id": "092601-010-sample-001",
+  "event_id": "evt-sample-agreement-0001",
   "event_type": "AGREEMENT_VERSIONED",
   "aggregate_type": "partnership_agreement",
-  "aggregate_id": "heritage_mentor-001",
-  "occurred_at": "2026-09-25T10:00:00+08:00",
+  "aggregate_id": "AGR-2026-09",
+  "occurred_at": "2026-09-01T09:00:00+08:00",
   "version": 1,
-  "payload": {}
+  "payload": {
+    "agreement_ref": "AGR-2026-09",
+    "terms_version": 1,
+    "effective_from": "2026-09-01T00:00:00+08:00",
+    "status": "active"
+  }
 }
