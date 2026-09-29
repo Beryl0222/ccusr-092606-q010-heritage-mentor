@@ -2,8 +2,11 @@
   "event_id": "092601-010-sample-001",
   "event_type": "AGREEMENT_VERSIONED",
   "aggregate_type": "partnership_agreement",
-  "aggregate_id": "heritage_mentor-001",
-  "occurred_at": "2026-09-25T10:00:00+08:00",
+  "aggregate_id": "agr-2026-001",
+  "occurred_at": "2026-09-01T10:00:00+08:00",
   "version": 1,
-  "payload": {}
+  "payload": {
+    "change_summary": "建立校地非遗进校园合作协议 v1",
+    "narrowed": false
+  }
 }

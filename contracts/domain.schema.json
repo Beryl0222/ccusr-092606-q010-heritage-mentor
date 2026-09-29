@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "校地非遗导师履约簿领域事件",
+  "description": "事件溯源：所有业务状态由这些事件按 (aggregate_id, version) 重放得到；决策规则见 docs/domain.md。期限锚定事件 occurred_at，服务重启不重新起算。",
   "type": "object",
   "required": [
     "event_id",
@@ -20,19 +21,41 @@
       "type": "string",
       "enum": [
         "AGREEMENT_VERSIONED",
-        "MENTOR_AUTHORIZED",
-        "LESSON_SCHEDULED",
+        "MENTOR_QUALIFIED",
+        "CONTENT_GRANTED",
+        "GRADE_PREREQUISITE_SET",
+        "TEACHER_ROLE_ASSIGNED",
+        "LESSON_PLANNED",
+        "RESOURCE_BLOCKED",
+        "RESOURCE_FREED",
+        "ATTENDANCE_SENT",
+        "ARTIFACT_RECEIPT_SENT",
         "DELIVERY_CONFIRMED",
-        "OBLIGATION_RAISED"
+        "QUALITY_FEEDBACK_GIVEN",
+        "STUDENT_CONSENT_GRANTED",
+        "ARTIFACT_PUBLISHED",
+        "ARTIFACT_DELISTED",
+        "OBLIGATION_RAISED",
+        "OBLIGATION_CLOSED",
+        "FEE_POLICY_SET",
+        "FEE_SETTLED",
+        "APPROVAL_RECORDED",
+        "MENTOR_EXITED"
       ]
     },
     "aggregate_type": {
       "type": "string",
       "enum": [
         "partnership_agreement",
-        "mentor_grant",
-        "lesson_delivery",
-        "student_artifact"
+        "mentor_profile",
+        "content_grant",
+        "lesson_series",
+        "lesson_session",
+        "student_consent",
+        "student_artifact",
+        "obligation",
+        "fee_account",
+        "approval"
       ]
     },
     "aggregate_id": {
@@ -41,28 +64,238 @@
     },
     "occurred_at": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "description": "业务时间（必带时区）；服务重启不改写该时间，所有期限据此起算"
     },
     "version": {
       "type": "integer",
-      "minimum": 1
+      "minimum": 1,
+      "description": "同一聚合内从 1 开始严格递增、不跳号"
     },
     "payload": {
       "type": "object"
     }
   },
-  "payload_required_by_event": {
-    "MENTOR_AUTHORIZED": [
-      "scope",
-      "expires_at"
+  "aggregate_allowed_events": {
+    "partnership_agreement": [
+      "AGREEMENT_VERSIONED"
     ],
-    "LESSON_SCHEDULED": [
+    "mentor_profile": [
+      "MENTOR_QUALIFIED",
+      "MENTOR_EXITED"
+    ],
+    "content_grant": [
+      "CONTENT_GRANTED"
+    ],
+    "lesson_series": [
+      "GRADE_PREREQUISITE_SET",
+      "TEACHER_ROLE_ASSIGNED"
+    ],
+    "lesson_session": [
+      "LESSON_PLANNED",
+      "RESOURCE_BLOCKED",
+      "RESOURCE_FREED",
+      "ATTENDANCE_SENT",
+      "ARTIFACT_RECEIPT_SENT",
+      "DELIVERY_CONFIRMED",
+      "QUALITY_FEEDBACK_GIVEN"
+    ],
+    "student_consent": [
+      "STUDENT_CONSENT_GRANTED"
+    ],
+    "student_artifact": [
+      "ARTIFACT_PUBLISHED",
+      "ARTIFACT_DELISTED"
+    ],
+    "obligation": [
+      "OBLIGATION_RAISED",
+      "OBLIGATION_CLOSED"
+    ],
+    "fee_account": [
+      "FEE_POLICY_SET",
+      "FEE_SETTLED"
+    ],
+    "approval": [
+      "APPROVAL_RECORDED"
+    ]
+  },
+  "payload_required_by_event": {
+    "AGREEMENT_VERSIONED": [
+      "change_summary",
+      "narrowed"
+    ],
+    "MENTOR_QUALIFIED": [
+      "mentor_id",
+      "agreement_id",
+      "discipline",
+      "valid_from",
+      "valid_to",
+      "content_refs"
+    ],
+    "CONTENT_GRANTED": [
+      "mentor_id",
+      "agreement_id",
+      "content_ref",
+      "scope",
+      "valid_from",
+      "valid_to"
+    ],
+    "GRADE_PREREQUISITE_SET": [
+      "series_id",
+      "grades"
+    ],
+    "TEACHER_ROLE_ASSIGNED": [
+      "series_id",
+      "teacher_id",
+      "role",
+      "active_from",
+      "active_to"
+    ],
+    "LESSON_PLANNED": [
+      "series_id",
+      "mentor_id",
       "class_ref",
-      "resource_window"
+      "grade",
+      "scheduled_at",
+      "scheduled_end",
+      "required_grants",
+      "required_resources"
+    ],
+    "RESOURCE_BLOCKED": [
+      "resource_id",
+      "start",
+      "end",
+      "lesson_id",
+      "mentor_id"
+    ],
+    "RESOURCE_FREED": [
+      "resource_id",
+      "start",
+      "end",
+      "lesson_id"
+    ],
+    "ATTENDANCE_SENT": [
+      "lesson_id",
+      "class_ref",
+      "scheduled_at",
+      "attended_student_ids"
+    ],
+    "ARTIFACT_RECEIPT_SENT": [
+      "lesson_id",
+      "class_ref",
+      "scheduled_at",
+      "artifact_count"
     ],
     "DELIVERY_CONFIRMED": [
+      "lesson_id",
+      "content_used",
       "contribution_snapshot",
       "evidence_hash"
+    ],
+    "QUALITY_FEEDBACK_GIVEN": [
+      "lesson_id",
+      "issue_codes"
+    ],
+    "STUDENT_CONSENT_GRANTED": [
+      "student_id",
+      "class_ref",
+      "guardian_contact",
+      "scope",
+      "valid_from",
+      "valid_to"
+    ],
+    "ARTIFACT_PUBLISHED": [
+      "lesson_id",
+      "student_ids",
+      "grants_used",
+      "contributors",
+      "venue",
+      "fee_bearing",
+      "mentor_approval_id",
+      "school_approval_id",
+      "published_at"
+    ],
+    "ARTIFACT_DELISTED": [
+      "artifact_id",
+      "reason"
+    ],
+    "OBLIGATION_RAISED": [
+      "kind",
+      "due_at",
+      "context_ref"
+    ],
+    "OBLIGATION_CLOSED": [
+      "obligation_id",
+      "resolution"
+    ],
+    "FEE_POLICY_SET": [
+      "series_id",
+      "base_fee_per_session",
+      "artifact_royalty"
+    ],
+    "FEE_SETTLED": [
+      "lesson_id",
+      "amount",
+      "correlation_id",
+      "mentor_id"
+    ],
+    "MENTOR_EXITED": [
+      "mentor_id",
+      "handover_notes_ref",
+      "future_blocked",
+      "series_affected"
+    ],
+    "APPROVAL_RECORDED": [
+      "artifact_ref",
+      "channel",
+      "approver_id",
+      "granted",
+      "granted_at"
+    ]
+  },
+  "payload_datetime_fields": {
+    "MENTOR_QUALIFIED": [
+      "valid_from",
+      "valid_to"
+    ],
+    "CONTENT_GRANTED": [
+      "valid_from",
+      "valid_to"
+    ],
+    "TEACHER_ROLE_ASSIGNED": [
+      "active_from",
+      "active_to"
+    ],
+    "LESSON_PLANNED": [
+      "scheduled_at",
+      "scheduled_end"
+    ],
+    "RESOURCE_BLOCKED": [
+      "start",
+      "end"
+    ],
+    "RESOURCE_FREED": [
+      "start",
+      "end"
+    ],
+    "ATTENDANCE_SENT": [
+      "scheduled_at"
+    ],
+    "ARTIFACT_RECEIPT_SENT": [
+      "scheduled_at"
+    ],
+    "STUDENT_CONSENT_GRANTED": [
+      "valid_from",
+      "valid_to"
+    ],
+    "ARTIFACT_PUBLISHED": [
+      "published_at"
+    ],
+    "OBLIGATION_RAISED": [
+      "due_at"
+    ],
+    "APPROVAL_RECORDED": [
+      "granted_at"
     ]
   },
   "additionalProperties": false
